@@ -21,7 +21,8 @@ const os = require('os');
 const path = require('path');
 const https = require('https');
 const http = require('http');
-const { spawnSync } = require('child_process');
+const crypto = require('crypto');
+const { spawnSync, execSync } = require('child_process');
 const readline = require('readline');
 
 const UNLOCK_URLS = process.env.SLAPSAFE_UNLOCK_URL
@@ -50,6 +51,42 @@ function ask(question) {
   });
 }
 
+// A stable, privacy-preserving device id. Prefer a hardware id (so clearing
+// ~/.slapsafe doesn't change identity); fall back to a persisted random id.
+// Hashed with a salt so the raw hardware id never leaves the machine.
+function rawMachineId() {
+  try {
+    if (process.platform === 'darwin') {
+      const out = execSync('ioreg -rd1 -c IOPlatformExpertDevice', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      const m = out.match(/IOPlatformUUID"\s*=\s*"([^"]+)"/);
+      if (m) return 'mac:' + m[1];
+    } else if (process.platform === 'linux') {
+      for (const p of ['/etc/machine-id', '/var/lib/dbus/machine-id']) {
+        try { const v = fs.readFileSync(p, 'utf8').trim(); if (v) return 'linux:' + v; } catch {}
+      }
+    } else if (process.platform === 'win32') {
+      const out = execSync('reg query "HKLM\\SOFTWARE\\Microsoft\\Cryptography" /v MachineGuid', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      const m = out.match(/MachineGuid\s+REG_SZ\s+([A-Za-z0-9-]+)/);
+      if (m) return 'win:' + m[1];
+    }
+  } catch {}
+  return null;
+}
+function deviceId() {
+  let raw = rawMachineId();
+  if (!raw) {
+    const p = path.join(CONFIG_DIR, 'device');
+    try { raw = 'rand:' + fs.readFileSync(p, 'utf8').trim(); }
+    catch {
+      const r = crypto.randomBytes(16).toString('hex');
+      try { fs.mkdirSync(CONFIG_DIR, { recursive: true }); fs.writeFileSync(p, r + '\n', { mode: 0o600 }); } catch {}
+      raw = 'rand:' + r;
+    }
+  }
+  return crypto.createHash('sha256').update('slapsafe-device-v1|' + raw).digest('hex').slice(0, 32);
+}
+const DEVICE = deviceId();
+
 // try each endpoint until one answers; network/DNS errors fall through to the next
 async function unlock(key) {
   let lastErr = 'could not reach slapsafe.com';
@@ -66,7 +103,7 @@ function unlockAt(URL_STR, key) {
   return new Promise((resolve) => {
     let u;
     try { u = new URL(URL_STR); } catch { return resolve({ reached: false, error: 'bad unlock url' }); }
-    const body = JSON.stringify({ key, v: 1 });
+    const body = JSON.stringify({ key, device: DEVICE, v: 1 });
     const transport = u.protocol === 'http:' ? http : https;
     const req = transport.request(
       { hostname: u.hostname, path: u.pathname + u.search, port: u.port || 443, method: 'POST',

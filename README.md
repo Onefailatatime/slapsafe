@@ -16,11 +16,11 @@ key when you buy at [slapsafe.com](https://slapsafe.com) — $5, one-time).
 
 ```bash
 # in your project folder:
-npx github:Onefailatatime/slapsafe
+npx slapsafe
 
 # it asks for your key the first time, then remembers it.
 # scan a specific folder:
-npx github:Onefailatatime/slapsafe ./my-app
+npx slapsafe ./my-app
 ```
 
 That's it. You'll get a severity-ranked report of anything that would leak — with
@@ -30,8 +30,8 @@ anything critical, so it drops into CI too.
 Manage your key:
 
 ```bash
-npx github:Onefailatatime/slapsafe --key SS1-XXXX-XXXX   # set or replace your key
-npx github:Onefailatatime/slapsafe --logout              # forget the stored key
+npx slapsafe --key SS1-XXXX-XXXX   # set or replace your key
+npx slapsafe --logout              # forget the stored key
 ```
 
 ## What it checks
@@ -45,7 +45,7 @@ Plus the buyer doc pack: deep-audit prompts for Claude Code / Cursor, a 1-page
 pre-launch checklist, and a key-rotation runbook for when a secret already went out.
 
 ## How it works
-`npx github:Onefailatatime/slapsafe` is a tiny launcher. It checks your license key, pulls the scanner
+`npx slapsafe` is a tiny launcher. It checks your license key, pulls the scanner
 from slapsafe.com, and runs it **locally** against your code. Only your key is
 ever sent — never your code. If a "security" tool asks you to upload your repo to
 scan it for leaks, that's the risk.
