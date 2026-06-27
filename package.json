@@ -1,0 +1,21 @@
+{
+  "name": "slapsafe",
+  "version": "1.0.0",
+  "description": "Check your app for leaks before you launch. A license-keyed, local pre-launch security scanner for vibe-coded apps — catches exposed Supabase/Stripe keys, client-side service_role keys, and unignored .env files. Your code never leaves your machine.",
+  "bin": {
+    "slapsafe": "bin/slapsafe.js"
+  },
+  "files": [
+    "bin/",
+    "README.md",
+    "LICENSE.txt"
+  ],
+  "scripts": {
+    "start": "node bin/slapsafe.js"
+  },
+  "keywords": ["security", "audit", "supabase", "rls", "vibe-coding", "stripe", "secrets", "lovable", "bolt", "cursor"],
+  "homepage": "https://slapsafe.com",
+  "bugs": { "email": "jessyka@slapforge.com" },
+  "license": "SEE LICENSE.txt",
+  "engines": { "node": ">=14" }
+}

@@ -1,0 +1,14 @@
+slapsafe — License
+
+Copyright (c) 2026 Jessyka (@jessyka_boat). All rights reserved.
+
+You are granted a non-exclusive license to use this tool on your own personal and
+commercial projects, including in your own CI pipelines.
+
+You may NOT resell, redistribute, sublicense, or republish the tool or its source,
+in whole or in part, as your own product or as part of another product for sale.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. slapsafe is a
+heuristic pre-launch check, not a guarantee of security and not a substitute for a
+professional security review. The author is not liable for any breach, loss, or
+damages arising from use of this tool.
